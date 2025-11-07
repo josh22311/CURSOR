@@ -1,23 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "Auto Signup Helper",
-  "version": "1.1.0",
-  "description": "Automates signup process with random data generation",
+  "name": "Auto Signup Helper - Mobile",
+  "version": "1.2.0",
+  "description": "Automates signup process with random data generation (Mobile-Ready!)",
   "permissions": [
     "activeTab",
     "scripting",
     "storage",
-    "sidePanel",
     "cookies"
   ],
   "host_permissions": [
     "<all_urls>"
   ],
   "action": {
-    "default_title": "Open Auto Signup Panel"
-  },
-  "side_panel": {
-    "default_path": "popup.html"
+    "default_popup": "popup.html",
+    "default_title": "Auto Signup Helper"
   },
   "icons": {
     "16": "icons/icon16.png",

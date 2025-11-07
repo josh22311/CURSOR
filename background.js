@@ -12,9 +12,12 @@ chrome.runtime.onInstalled.addListener(function(details) {
   }
 });
 
-// Open side panel when extension icon is clicked
+// Open popup when extension icon is clicked
+// Mobile-compatible: uses popup instead of sidePanel
 chrome.action.onClicked.addListener((tab) => {
-  chrome.sidePanel.open({ windowId: tab.windowId });
+  // On mobile browsers (Kiwi, Yandex), this will open the popup automatically
+  // No need to call sidePanel.open() as it's not supported on mobile
+  console.log('Extension icon clicked');
 });
 
 // Listen for messages from content scripts and popup
