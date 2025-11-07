@@ -1,7 +1,7 @@
 // Background service worker for the extension
 
-// TempMailApi key (using demo key from docs)
-const TEMP_MAIL_API_KEY = 'CZXXyF8jg5JRH7UbQWVYiKMQjQznCB6';
+// 🔥 NOW USING 1SecMail - FREE API (No key needed!)
+// Removed TempMailApi dependency
 
 // Listen for extension installation
 chrome.runtime.onInstalled.addListener(function(details) {
