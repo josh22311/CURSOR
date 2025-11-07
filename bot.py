@@ -1,9 +1,11 @@
 import os
 import time
 import logging
+import threading
 from datetime import datetime, timedelta
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
+from flask import Flask, jsonify
 
 # Setup logging
 logging.basicConfig(
@@ -14,6 +16,26 @@ logger = logging.getLogger(__name__)
 
 # Track when bot started
 START_TIME = time.time()
+
+# Create Flask app for health checks
+web_app = Flask(__name__)
+
+@web_app.route('/')
+def home():
+    """Health check endpoint"""
+    uptime = get_uptime()
+    return jsonify({
+        'status': 'ONLINE! 🔥',
+        'uptime_seconds': uptime['total_seconds'],
+        'uptime': f"{uptime['days']}d {uptime['hours']}h {uptime['minutes']}m {uptime['seconds']}s",
+        'platform': 'Render',
+        'message': 'Bot is CRUSHING IT! 💪'
+    })
+
+@web_app.route('/health')
+def health():
+    """Simple health check"""
+    return jsonify({'status': 'healthy', 'uptime': get_uptime()['total_seconds']})
 
 def get_uptime():
     """Calculate how long the bot has been running"""
@@ -127,10 +149,21 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Log errors"""
     logger.error(f"Update {update} caused error {context.error}")
 
+def run_web_server():
+    """Run Flask web server for health checks"""
+    port = int(os.getenv('PORT', 10000))
+    logger.info(f"🌐 Starting web server on port {port}...")
+    web_app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
+
 def main():
     """Start the bot"""
     # Get token from environment variable
     TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '8465562265:AAHXkLGY_E2FNpNXX9fvtYRcFTd5tG3wCB0')
+    
+    # Start web server in background thread
+    web_thread = threading.Thread(target=run_web_server, daemon=True)
+    web_thread.start()
+    logger.info("✅ Web server started in background!")
     
     # Create application
     app = Application.builder().token(TOKEN).build()
