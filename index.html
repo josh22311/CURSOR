@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#007AFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Auto Signup">
+    <title>Auto Signup Mobile 🚀</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            background: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .mode-btn.active {
+            border-color: #007AFF;
+            background: #007AFF;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .mode-btn .emoji {
+            font-size: 28px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #007AFF;
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.95);
+            background: #0056b3;
+        }
+
+        .btn-danger {
+            background: #FF3B30;
+            color: white;
+        }
+
+        .btn-danger:active {
+            transform: scale(0.95);
+            background: #cc0000;
+        }
+
+        .btn-secondary {
+            background: #5856D6;
+            color: white;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.95);
+            background: #4745A8;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .status.idle {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .status.running {
+            background: #34C759;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .status.error {
+            background: #FF3B30;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .account-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .account-item {
+            background: #f8f8f8;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .account-item .email {
+            font-size: 14px;
+            color: #007AFF;
+            margin-bottom: 5px;
+        }
+
+        .account-item .password {
+            font-size: 14px;
+            color: #666;
+            font-family: monospace;
+        }
+
+        .account-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .account-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            background: #007AFF;
+            color: white;
+        }
+
+        .bookmarklet-box {
+            background: #f8f8f8;
+            border: 2px dashed #007AFF;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .bookmarklet-link {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #FF9500;
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            margin: 15px 0;
+            font-size: 16px;
+        }
+
+        .instructions {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        .settings-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .settings-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            padding: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state .emoji {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 400px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            .mode-btn {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Auto Signup Mobile</h1>
+            <p>Automation on your phone! 📱💪</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="card">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('automation')">🤖 Auto</button>
+                <button class="tab-btn" onclick="switchTab('accounts')">💾 Accounts</button>
+                <button class="tab-btn" onclick="switchTab('settings')">⚙️ Settings</button>
+            </div>
+
+            <!-- Automation Tab -->
+            <div id="automation-tab" class="tab-content active">
+                <div class="section-title">Select Mode 🎯</div>
+                
+                <div class="mode-selector">
+                    <button class="mode-btn active" onclick="setMode('full')" id="full-mode">
+                        <span class="emoji">🚀</span>
+                        <span>Full Auto</span>
+                    </button>
+                    <button class="mode-btn" onclick="setMode('stripe')" id="stripe-mode">
+                        <span class="emoji">💳</span>
+                        <span>Stripe Only</span>
+                    </button>
+                </div>
+
+                <div class="status idle" id="status">
+                    Ready to automate! 🔥
+                </div>
+
+                <div class="bookmarklet-box">
+                    <div style="font-weight: 600; margin-bottom: 10px;">
+                        📌 Drag this to your bookmarks bar:
+                    </div>
+                    <a href="javascript:(function(){var s=document.createElement('script');s.src='data:text/javascript,'+encodeURIComponent(document.getElementById('automation-script').textContent);document.body.appendChild(s);})();" class="bookmarklet-link">
+                        🚀 Auto Signup
+                    </a>
+                    <div class="instructions">
+                        <strong>HOW TO USE:</strong><br>
+                        1️⃣ Long-press the button above<br>
+                        2️⃣ Add to bookmarks/favorites<br>
+                        3️⃣ Go to any signup page<br>
+                        4️⃣ Tap the bookmark to run! 🔥
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="copyBookmarklet()">
+                    📋 Copy Bookmarklet Code
+                </button>
+            </div>
+
+            <!-- Accounts Tab -->
+            <div id="accounts-tab" class="tab-content">
+                <div class="section-title">Saved Accounts 💾</div>
+                
+                <div id="account-list" class="account-list">
+                    <!-- Accounts will be loaded here -->
+                </div>
+
+                <button class="btn btn-secondary" onclick="exportAccounts()">
+                    📤 Export All Accounts
+                </button>
+                <button class="btn btn-danger" onclick="clearAllAccounts()">
+                    🗑️ Delete All Accounts
+                </button>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content">
+                <div class="section-title">Card Settings 💳</div>
+                
+                <div class="settings-group">
+                    <label>Card BIN (6-8 digits):</label>
+                    <input type="text" id="card-bin" placeholder="625967" maxlength="8">
+                </div>
+
+                <div class="settings-group">
+                    <label>Expiry (MM/YY) - Leave empty for random:</label>
+                    <input type="text" id="card-expiry" placeholder="12/25" maxlength="5">
+                </div>
+
+                <div class="settings-group">
+                    <label>CVV (3 digits) - Leave empty for random:</label>
+                    <input type="text" id="card-cvv" placeholder="123" maxlength="3">
+                </div>
+
+                <div class="settings-group">
+                    <label>TempMail API Key:</label>
+                    <input type="text" id="api-key" placeholder="Enter your API key">
+                </div>
+
+                <button class="btn btn-primary" onclick="saveSettings()">
+                    ✅ Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden automation script -->
+    <script id="automation-script" type="text/template">
+        // AUTO SIGNUP MOBILE AUTOMATION SCRIPT 🚀
+        (function() {
+            'use strict';
+            
+            const API_KEY = localStorage.getItem('tempmail_api_key') || 'demo-key-12345';
+            const mode = localStorage.getItem('automation_mode') || 'full';
+            
+            // Create UI overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:20px;right:20px;z-index:999999;background:rgba(0,122,255,0.95);color:white;padding:20px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.3);font-family:-apple-system,BlinkMacSystemFont,sans-serif;max-width:300px;';
+            overlay.innerHTML = '<div style="font-size:18px;font-weight:bold;margin-bottom:10px;">🚀 Auto Signup Running...</div><div id="auto-status" style="font-size:14px;">Initializing... ⚡</div><button id="auto-stop" style="margin-top:15px;padding:10px 20px;background:#FF3B30;border:none;border-radius:10px;color:white;font-weight:bold;width:100%;">🛑 STOP</button>';
+            document.body.appendChild(overlay);
+            
+            const statusEl = document.getElementById('auto-status');
+            let running = true;
+            
+            document.getElementById('auto-stop').onclick = () => {
+                running = false;
+                statusEl.textContent = 'Stopped by user ✋';
+                setTimeout(() => overlay.remove(), 2000);
+            };
+            
+            // Helper functions
+            function updateStatus(msg) {
+                if(statusEl) statusEl.textContent = msg;
+            }
+            
+            function wait(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            
+            function generateName() {
+                const firstNames = ['James', 'John', 'Robert', 'Michael', 'Sarah', 'Emma', 'Olivia', 'Sophia'];
+                const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
+                return {
+                    first: firstNames[Math.floor(Math.random() * firstNames.length)],
+                    last: lastNames[Math.floor(Math.random() * lastNames.length)]
+                };
+            }
+            
+            function generatePassword() {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*';
+                let pwd = '';
+                for(let i = 0; i < 12; i++) {
+                    pwd += chars[Math.floor(Math.random() * chars.length)];
+                }
+                return pwd;
+            }
+            
+            function generateLuhnCard(bin) {
+                let card = bin || '625967';
+                while(card.length < 15) {
+                    card += Math.floor(Math.random() * 10);
+                }
+                // Calculate Luhn check digit
+                let sum = 0;
+                for(let i = 0; i < card.length; i++) {
+                    let digit = parseInt(card[i]);
+                    if(i % 2 === 0) {
+                        digit *= 2;
+                        if(digit > 9) digit -= 9;
+                    }
+                    sum += digit;
+                }
+                const checkDigit = (10 - (sum % 10)) % 10;
+                return card + checkDigit;
+            }
+            
+            function fillField(selector, value) {
+                const field = document.querySelector(selector);
+                if(field) {
+                    field.value = value;
+                    field.dispatchEvent(new Event('input', {bubbles: true}));
+                    field.dispatchEvent(new Event('change', {bubbles: true}));
+                    return true;
+                }
+                return false;
+            }
+            
+            // Main automation
+            async function runFullAuto() {
+                try {
+                    updateStatus('Step 1: Generating name... 👤');
+                    const name = generateName();
+                    await wait(500);
+                    
+                    updateStatus('Step 2: Filling name fields... ✍️');
+                    fillField('input[name*="firstName"],input[placeholder*="First"]', name.first);
+                    fillField('input[name*="lastName"],input[placeholder*="Last"]', name.last);
+                    fillField('input[name*="name"],input[placeholder*="Name"]', `${name.first} ${name.last}`);
+                    await wait(1000);
+                    
+                    updateStatus('Step 3: Generating temp email... 📧');
+                    const email = `test${Date.now()}@tempmail.com`;
+                    fillField('input[type="email"],input[name*="email"]', email);
+                    await wait(1000);
+                    
+                    updateStatus('Step 4: Generating password... 🔐');
+                    const password = generatePassword();
+                    fillField('input[type="password"]', password);
+                    await wait(1000);
+                    
+                    // Save credentials
+                    const accounts = JSON.parse(localStorage.getItem('saved_accounts') || '[]');
+                    accounts.push({
+                        name: `${name.first} ${name.last}`,
+                        email: email,
+                        password: password,
+                        created: new Date().toLocaleString()
+                    });
+                    localStorage.setItem('saved_accounts', JSON.stringify(accounts));
+                    
+                    updateStatus('✅ Form filled! Saved to accounts! 🎉');
+                    await wait(2000);
+                    overlay.remove();
+                    
+                } catch(err) {
+                    updateStatus('❌ Error: ' + err.message);
+                    await wait(3000);
+                    overlay.remove();
+                }
+            }
+            
+            async function runStripeMode() {
+                try {
+                    updateStatus('Loading card settings... 💳');
+                    const bin = localStorage.getItem('card_bin') || '625967';
+                    const expiry = localStorage.getItem('card_expiry') || '12/25';
+                    const cvv = localStorage.getItem('card_cvv') || '123';
+                    await wait(500);
+                    
+                    updateStatus('Generating card number... 🎴');
+                    const cardNum = generateLuhnCard(bin);
+                    await wait(500);
+                    
+                    updateStatus('Filling payment form... 💰');
+                    fillField('input[name*="cardnumber"],input[placeholder*="Card number"]', cardNum);
+                    fillField('input[name*="exp"],input[placeholder*="MM"]', expiry);
+                    fillField('input[name*="cvc"],input[name*="cvv"]', cvv);
+                    fillField('input[name*="name"],input[placeholder*="Name on card"]', 'John Smith');
+                    await wait(1000);
+                    
+                    updateStatus('✅ Payment filled! Ready to submit! 🚀');
+                    await wait(2000);
+                    overlay.remove();
+                    
+                } catch(err) {
+                    updateStatus('❌ Error: ' + err.message);
+                    await wait(3000);
+                    overlay.remove();
+                }
+            }
+            
+            // Run based on mode
+            if(mode === 'full') {
+                runFullAuto();
+            } else {
+                runStripeMode();
+            }
+            
+        })();
+    </script>
+
+    <script>
+        // App JavaScript
+        let currentMode = 'full';
+
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+            
+            if(tab === 'accounts') {
+                loadAccounts();
+            } else if(tab === 'settings') {
+                loadSettings();
+            }
+        }
+
+        // Mode selection
+        function setMode(mode) {
+            currentMode = mode;
+            localStorage.setItem('automation_mode', mode);
+            
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(mode + '-mode').classList.add('active');
+            
+            document.getElementById('status').textContent = mode === 'full' ? 
+                'Full Auto mode selected! 🚀' : 
+                'Stripe Only mode selected! 💳';
+        }
+
+        // Load and display accounts
+        function loadAccounts() {
+            const accounts = JSON.parse(localStorage.getItem('saved_accounts') || '[]');
+            const container = document.getElementById('account-list');
+            
+            if(accounts.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="emoji">📭</div><div>No accounts saved yet!</div></div>';
+                return;
+            }
+            
+            container.innerHTML = accounts.map((acc, index) => `
+                <div class="account-item">
+                    <div style="font-weight:600;margin-bottom:5px;">${acc.name || 'Account ' + (index + 1)}</div>
+                    <div class="email">${acc.email}</div>
+                    <div class="password">${'•'.repeat(acc.password.length)}</div>
+                    <div style="font-size:11px;color:#999;margin-top:5px;">${acc.created}</div>
+                    <div class="account-actions">
+                        <button onclick="copyText('${acc.email}')">📧 Email</button>
+                        <button onclick="copyText('${acc.password}')">🔐 Pass</button>
+                        <button onclick="copyBoth('${acc.email}', '${acc.password}')">📋 Both</button>
+                        <button onclick="deleteAccount(${index})" style="background:#FF3B30;">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Copy functions
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✅ Copied to clipboard!');
+            });
+        }
+
+        function copyBoth(email, password) {
+            navigator.clipboard.writeText(`${email}\n${password}`).then(() => {
+                showToast('✅ Email & password copied!');
+            });
+        }
+
+        // Delete account
+        function deleteAccount(index) {
+            if(!confirm('Delete this account?')) return;
+            
+            const accounts = JSON.parse(localStorage.getItem('saved_accounts') || '[]');
+            accounts.splice(index, 1);
+            localStorage.setItem('saved_accounts', JSON.stringify(accounts));
+            loadAccounts();
+            showToast('🗑️ Account deleted!');
+        }
+
+        // Clear all accounts
+        function clearAllAccounts() {
+            if(!confirm('Delete ALL accounts? This cannot be undone!')) return;
+            
+            localStorage.removeItem('saved_accounts');
+            loadAccounts();
+            showToast('🗑️ All accounts deleted!');
+        }
+
+        // Export accounts
+        function exportAccounts() {
+            const accounts = JSON.parse(localStorage.getItem('saved_accounts') || '[]');
+            
+            if(accounts.length === 0) {
+                showToast('❌ No accounts to export!');
+                return;
+            }
+            
+            let content = '=== SAVED ACCOUNTS ===\n';
+            content += `Exported: ${new Date().toLocaleString()}\n`;
+            content += `Total Accounts: ${accounts.length}\n\n`;
+            
+            accounts.forEach((acc, i) => {
+                content += `Account ${i + 1}:\n`;
+                content += '------------------------------\n';
+                content += `Name:     ${acc.name}\n`;
+                content += `Email:    ${acc.email}\n`;
+                content += `Password: ${acc.password}\n`;
+                content += `Created:  ${acc.created}\n\n`;
+            });
+            
+            const blob = new Blob([content], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `accounts-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            
+            showToast('✅ Accounts exported!');
+        }
+
+        // Load settings
+        function loadSettings() {
+            document.getElementById('card-bin').value = localStorage.getItem('card_bin') || '';
+            document.getElementById('card-expiry').value = localStorage.getItem('card_expiry') || '';
+            document.getElementById('card-cvv').value = localStorage.getItem('card_cvv') || '';
+            document.getElementById('api-key').value = localStorage.getItem('tempmail_api_key') || '';
+        }
+
+        // Save settings
+        function saveSettings() {
+            localStorage.setItem('card_bin', document.getElementById('card-bin').value);
+            localStorage.setItem('card_expiry', document.getElementById('card-expiry').value);
+            localStorage.setItem('card_cvv', document.getElementById('card-cvv').value);
+            localStorage.setItem('tempmail_api_key', document.getElementById('api-key').value);
+            
+            showToast('✅ Settings saved!');
+        }
+
+        // Copy bookmarklet
+        function copyBookmarklet() {
+            const script = document.getElementById('automation-script').textContent;
+            const bookmarklet = `javascript:(function(){${script}})();`;
+            
+            navigator.clipboard.writeText(bookmarklet).then(() => {
+                showToast('✅ Bookmarklet code copied! Paste it into a bookmark URL!');
+            });
+        }
+
+        // Toast notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:15px 25px;border-radius:10px;z-index:999999;font-size:14px;box-shadow:0 5px 15px rgba(0,0,0,0.3);';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        // Register service worker
+        if('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            setMode('full');
+        });
+    </script>
+</body>
+</html>
