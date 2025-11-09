@@ -858,8 +858,16 @@ class RobloxManager:
 
                 destination_db_dir = f"/data/data/{package_name}/app_webview/Default/"
                 destination_appstorage_dir = f"/data/data/{package_name}/files/appData/LocalStorage/"
-                os.makedirs(destination_db_dir, exist_ok=True)
-                os.makedirs(destination_appstorage_dir, exist_ok=True)
+                
+                # Check if we have permission to access /data/data/
+                try:
+                    os.makedirs(destination_db_dir, exist_ok=True)
+                    os.makedirs(destination_appstorage_dir, exist_ok=True)
+                except PermissionError:
+                    print(f"\033[1;31m[ TDJS ] - ⚠️  PERMISSION DENIED for {package_name}!\\033[0m")
+                    print(f"\033[1;33m[ TDJS ] - This script needs ROOT access or ADB shell permissions!\\033[0m")
+                    print(f"\033[1;33m[ TDJS ] - Run via: adb shell su -c 'python3 tdjs.py'\\033[0m")
+                    raise
 
                 destination_db_path = os.path.join(destination_db_dir, "Cookies")
                 shutil.copyfile(downloaded_db_path, destination_db_path)
