@@ -1,17 +1,60 @@
+#!/usr/bin/env python3
+"""
+TDJS - Rebranded Edition 🔥
+Auto-installs dependencies on first run
+"""
+
+import sys
+import subprocess
+import os
+
+def auto_install_dependencies():
+    """Auto-install required dependencies from requirements.txt"""
+    required_packages = {
+        'requests': 'requests==2.31.0',
+        'prettytable': 'prettytable==3.9.0', 
+        'rich': 'rich==13.7.0',
+        'psutil': 'psutil==5.9.6',
+        'pytz': 'pytz==2023.3'
+    }
+    
+    missing_packages = []
+    
+    # Check which packages are missing
+    for package, pip_name in required_packages.items():
+        try:
+            __import__(package)
+        except ImportError:
+            missing_packages.append(pip_name)
+    
+    # Install missing packages
+    if missing_packages:
+        print(f"\033[1;33m[ TDJS ] - Installing missing dependencies: {', '.join(missing_packages)}\033[0m")
+        try:
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install'] + missing_packages, 
+                                stdout=subprocess.DEVNULL, 
+                                stderr=subprocess.DEVNULL)
+            print(f"\033[1;32m[ TDJS ] - All dependencies installed successfully! ✅\033[0m")
+        except subprocess.CalledProcessError as e:
+            print(f"\033[1;31m[ TDJS ] - Error installing dependencies: {e}\033[0m")
+            print(f"\033[1;33m[ TDJS ] - Please run: pip install -r requirements.txt\033[0m")
+            sys.exit(1)
+
+# Run auto-install on import
+auto_install_dependencies()
+
+# Now import everything
 import threading
 import time
 import json
 import requests
-import subprocess
 import sqlite3
 import shutil
 import pytz
 import traceback
 import random
 import psutil
-import sys
 import gc
-import os
 from datetime import datetime, timezone
 from rich.table import Table #type: ignore
 from rich.panel import Panel #type: ignore
@@ -21,12 +64,7 @@ from rich.box import ROUNDED #type: ignore
 from rich.console import Console #type: ignore
 from threading import Lock, Event
 from psutil import boot_time, process_iter, cpu_percent, virtual_memory, Process, NoSuchProcess, AccessDenied, ZombieProcess
-
-try:
-    from prettytable import PrettyTable #type: ignore
-except ImportError:
-    os.system("pip install prettytable")
-    from prettytable import PrettyTable #type: ignore
+from prettytable import PrettyTable #type: ignore
 
 package_lock = Lock()
 status_lock = Lock()
@@ -197,13 +235,13 @@ workspace_paths = [f"{base_path}Workspace" for base_path in executors.values()] 
 globals()["workspace_paths"] = workspace_paths
 globals()["executors"] = executors
 
-if not os.path.exists("Shouko.dev"):
-    os.makedirs("Shouko.dev", exist_ok=True)
-SERVER_LINKS_FILE = "Shouko.dev/server-links.txt"
-ACCOUNTS_FILE = "Shouko.dev/accounts.txt"
-CONFIG_FILE = "Shouko.dev/config.json"
+if not os.path.exists("TDJS"):
+    os.makedirs("TDJS", exist_ok=True)
+SERVER_LINKS_FILE = "TDJS/server-links.txt"
+ACCOUNTS_FILE = "TDJS/accounts.txt"
+CONFIG_FILE = "TDJS/config.json"
 
-version = "2.2.5 | Customized by Shouko.dev"
+version = "3.0.0 | TDJS Edition 🔥"
 
 class Utilities:
     @staticmethod
@@ -243,9 +281,9 @@ class Utilities:
         return expiry_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
 class FileManager:
-    SERVER_LINKS_FILE = "Shouko.dev/server-link.txt"
-    ACCOUNTS_FILE = "Shouko.dev/account.txt"
-    CONFIG_FILE = "Shouko.dev/config-wh.json"
+    SERVER_LINKS_FILE = "TDJS/server-link.txt"
+    ACCOUNTS_FILE = "TDJS/account.txt"
+    CONFIG_FILE = "TDJS/config-wh.json"
 
     @staticmethod
     def save_server_links(server_links):
@@ -254,9 +292,9 @@ class FileManager:
             with open(FileManager.SERVER_LINKS_FILE, "w") as file:
                 for package, link in server_links:
                     file.write(f"{package},{link}\n")
-            print("\033[1;32m[ Shouko.dev ] - Server links saved successfully.\033[0m")
+            print("\033[1;32m[ TDJS ] - Server links saved successfully.\033[0m")
         except IOError as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error saving server links: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error saving server links: {e}\033[0m")
             Utilities.log_error(f"Error saving server links: {e}")
 
     @staticmethod
@@ -288,7 +326,7 @@ class FileManager:
                             globals()["_user_"][package] = user_id
                             accounts.append((package, user_id))
                         except ValueError:
-                            print(f"\033[1;31m[ Shouko.dev ] - Invalid line format: {line}. Expected format 'package,user_id'.\033[0m")
+                            print(f"\033[1;31m[ TDJS ] - Invalid line format: {line}. Expected format 'package,user_id'.\033[0m")
         return accounts
 
     @staticmethod
@@ -298,20 +336,20 @@ class FileManager:
                 content = file.read()
                 userid_start = content.find('"UserId":"')
                 if userid_start == -1:
-                    print("\033[1;31m[ Shouko.dev ] - Userid not found\033[0m")
+                    print("\033[1;31m[ TDJS ] - Userid not found\033[0m")
                     return None
 
                 userid_start += len('"UserId":"')
                 userid_end = content.find('"', userid_start)
                 if userid_end == -1:
-                    print("\033[1;31m[ Shouko.dev ] - Userid end quote not found\033[0m")
+                    print("\033[1;31m[ TDJS ] - Userid end quote not found\033[0m")
                     return None
 
                 userid = content[userid_start:userid_end]
                 return userid
 
         except IOError as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error reading file: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error reading file: {e}\033[0m")
             return None
 
     @staticmethod
@@ -331,7 +369,7 @@ class FileManager:
                     FileManager.save_username(user_id, username)
                     return username
             except requests.exceptions.RequestException as e:
-                print(f"\033[1;31m[ Shouko.dev ] - Attempt {attempt + 1} failed for Roblox Users API: {e}\033[0m")
+                print(f"\033[1;31m[ TDJS ] - Attempt {attempt + 1} failed for Roblox Users API: {e}\033[0m")
                 time.sleep(2 ** attempt)
 
         for attempt in range(retry_attempts):
@@ -345,7 +383,7 @@ class FileManager:
                     FileManager.save_username(user_id, username)
                     return username
             except requests.exceptions.RequestException as e:
-                print(f"\033[1;31m[ Shouko.dev ] - Attempt {attempt + 1} failed for RoProxy API: {e}\033[0m")
+                print(f"\033[1;31m[ TDJS ] - Attempt {attempt + 1} failed for RoProxy API: {e}\033[0m")
                 time.sleep(2 ** attempt)
 
         return "Unknown"
@@ -367,7 +405,7 @@ class FileManager:
                     json.dump(data, file)
                     file.truncate()
         except (IOError, json.JSONDecodeError) as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error saving username: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error saving username: {e}\033[0m")
 
     @staticmethod
     def load_saved_username(user_id):
@@ -376,7 +414,7 @@ class FileManager:
                 data = json.load(file)
                 return data.get(user_id, None)
         except (FileNotFoundError, json.JSONDecodeError, IOError) as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error loading username: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error loading username: {e}\033[0m")
             return None
 
     @staticmethod
@@ -390,21 +428,21 @@ class FileManager:
                         shutil.copyfileobj(response.raw, file)
                     else:
                         file.write(response.text)
-                print(f"\033[1;32m[ Shouko.dev ] - {os.path.basename(destination)} downloaded successfully.\033[0m")
+                print(f"\033[1;32m[ TDJS ] - {os.path.basename(destination)} downloaded successfully.\033[0m")
                 return destination
             else:
                 error_message = f"Failed to download {os.path.basename(destination)}. Status code: {response.status_code}"
-                print(f"\033[1;31m[ Shouko.dev ] - {error_message}\033[0m")
+                print(f"\033[1;31m[ TDJS ] - {error_message}\033[0m")
                 Utilities.log_error(error_message)
                 return None
         except requests.RequestException as e:
             error_message = f"Request exception while downloading {os.path.basename(destination)}: {e}"
-            print(f"\033[1;31m[ Shouko.dev ] - {error_message}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - {error_message}\033[0m")
             Utilities.log_error(error_message)
             return None
         except Exception as e:
             error_message = f"Unexpected error while downloading {os.path.basename(destination)}: {e}"
-            print(f"\033[1;31m[ Shouko.dev ] - {error_message}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - {error_message}\033[0m")
             Utilities.log_error(error_message)
             return None
 
@@ -442,7 +480,7 @@ class FileManager:
                 reset_tab_interval = None
                 codex_bypass_enabled = False
         except Exception as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error loading configuration: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error loading configuration: {e}\033[0m")
             Utilities.log_error(f"Error loading configuration: {e}")
 
     @staticmethod
@@ -463,9 +501,9 @@ class FileManager:
             }
             with open(FileManager.CONFIG_FILE, "w") as file:
                 json.dump(config, file, indent=4, sort_keys=True)
-            print("\033[1;32m[ Shouko.dev ] - Configuration saved successfully.\033[0m")
+            print("\033[1;32m[ TDJS ] - Configuration saved successfully.\033[0m")
         except Exception as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error saving configuration: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error saving configuration: {e}\033[0m")
             Utilities.log_error(f"Error saving configuration: {e}")
 
     @staticmethod
@@ -486,7 +524,7 @@ class SystemMonitor:
                 raise FileNotFoundError("Screenshot file was not created.")
             return screenshot_path
         except Exception as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error capturing screenshot: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error capturing screenshot: {e}\033[0m")
             Utilities.log_error(f"Error capturing screenshot: {e}")
             return None
 
@@ -528,7 +566,7 @@ class SystemMonitor:
             mem_usage_mb = mem_info.rss / (1024 ** 2)
             return round(mem_usage_mb, 2)
         except Exception as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error getting memory usage: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error getting memory usage: {e}\033[0m")
             Utilities.log_error(f"Error getting memory usage: {e}")
             return None
 
@@ -547,7 +585,7 @@ class SystemMonitor:
             }
             return system_info
         except Exception as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error retrieving system information: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error retrieving system information: {e}\033[0m")
             Utilities.log_error(f"Error retrieving system information: {e}")
             return False
 
@@ -557,14 +595,14 @@ class RobloxManager:
         try:
             current_dir = os.getcwd()
             cookie_txt_path = os.path.join(current_dir, "cookie.txt")
-            new_dir_path = os.path.join(current_dir, "Shouko.dev/Shoụko.dev - Data")
+            new_dir_path = os.path.join(current_dir, "TDJS/TDJS - Data")
             new_cookie_path = os.path.join(new_dir_path, "cookie.txt")
 
             if not os.path.exists(new_dir_path):
                 os.makedirs(new_dir_path)
 
             if not os.path.exists(cookie_txt_path):
-                print("\033[1;31m[ Shouko.dev ] - cookie.txt not found in the current directory!\033[0m")
+                print("\033[1;31m[ TDJS ] - cookie.txt not found in the current directory!\033[0m")
                 Utilities.log_error("cookie.txt not found in the current directory.")
                 return False
 
@@ -583,7 +621,7 @@ class RobloxManager:
                         cookies.append(ck)
 
             if len(cookies) == 0:
-                print("\033[1;31m[ Shouko.dev ] - No valid cookies found in cookie.txt. Please add cookies.\033[0m")
+                print("\033[1;31m[ TDJS ] - No valid cookies found in cookie.txt. Please add cookies.\033[0m")
                 Utilities.log_error("No valid cookies found in cookie.txt.")
                 return False
 
@@ -599,7 +637,7 @@ class RobloxManager:
             return cookie
 
         except Exception as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error: {e}\033[0m")
             Utilities.log_error(f"Error in get_cookie: {e}")
             return False
 
@@ -621,26 +659,26 @@ class RobloxManager:
             response = requests.get('https://users.roblox.com/v1/users/authenticated', headers=headers)
 
             if response.status_code == 200:
-                print("\033[1;32m[ Shouko.dev ] - Cookie is valid! User is authenticated.\033[0m")
+                print("\033[1;32m[ TDJS ] - Cookie is valid! User is authenticated.\033[0m")
                 return response.json().get("id", False)
             elif response.status_code == 401:
-                print("\033[1;31m[ Shouko.dev ] - Invalid cookie. The user is not authenticated.\033[0m")
+                print("\033[1;31m[ TDJS ] - Invalid cookie. The user is not authenticated.\033[0m")
                 return False
             else:
                 error_message = f"Error verifying cookie: {response.status_code} - {response.text}"
-                print(f"\033[1;31m[ Shouko.dev ] - {error_message}\033[0m")
+                print(f"\033[1;31m[ TDJS ] - {error_message}\033[0m")
                 Utilities.log_error(error_message)
                 return False
 
         except requests.RequestException as e:
             error_message = f"Request exception occurred while verifying cookie: {e}"
-            print(f"\033[1;31m[ Shouko.dev ] - {error_message}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - {error_message}\033[0m")
             Utilities.log_error(error_message)
             return False
 
         except Exception as e:
             error_message = f"Unexpected exception occurred while verifying cookie: {e}"
-            print(f"\033[1;31m[ Shouko.dev ] - {error_message}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - {error_message}\033[0m")
             Utilities.log_error(error_message)
             return False
 
@@ -696,10 +734,10 @@ class RobloxManager:
                     name = line.strip()
                     packages.append(name)
             else:
-                print(f"\033[1;31m[ Shouko.dev ] - Failed to retrieve packages with prefix {package_prefix}.\033[0m")
+                print(f"\033[1;31m[ TDJS ] - Failed to retrieve packages with prefix {package_prefix}.\033[0m")
                 Utilities.log_error(f"Failed to retrieve packages with prefix {package_prefix}. Return code: {result.returncode}")
         except Exception as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error retrieving packages: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error retrieving packages: {e}\033[0m")
             Utilities.log_error(f"Error retrieving packages: {e}")
         return packages
 
@@ -708,7 +746,7 @@ class RobloxManager:
         packages = RobloxManager.get_roblox_packages()
         running = SystemMonitor.roblox_processes()
         if not running:
-            print("\033[1;32m[ Shouko.dev ] - No Roblox processes to kill.\033[0m")
+            print("\033[1;32m[ TDJS ] - No Roblox processes to kill.\033[0m")
             return
         for package_name in packages:
             if any(package_name in proc for proc in running):
@@ -717,7 +755,7 @@ class RobloxManager:
 
     @staticmethod
     def kill_roblox_process(package_name):
-        print(f"\033[1;96m[ Shouko.dev ] - Killing Roblox process for {package_name}...\033[0m")
+        print(f"\033[1;96m[ TDJS ] - Killing Roblox process for {package_name}...\033[0m")
         try:
             subprocess.run(
                 ["/system/bin/am", "force-stop", package_name],
@@ -725,10 +763,10 @@ class RobloxManager:
                 text=True,
                 check=True
             )
-            print(f"\033[1;32m[ Shouko.dev ] - Killed process for {package_name}\033[0m")
+            print(f"\033[1;32m[ TDJS ] - Killed process for {package_name}\033[0m")
             time.sleep(2)
         except subprocess.CalledProcessError as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error killing process for {package_name}: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error killing process for {package_name}: {e}\033[0m")
             Utilities.log_error(f"Error killing process for {package_name}: {e}")
 
     @staticmethod
@@ -736,9 +774,9 @@ class RobloxManager:
         cache_path = f'/data/data/{package_name}/cache/'
         if os.path.exists(cache_path):
             os.system(f"rm -rf {cache_path}")
-            print(f"\033[1;32m[ Shouko.dev ] - Cache cleared for {package_name}\033[0m")
+            print(f"\033[1;32m[ TDJS ] - Cache cleared for {package_name}\033[0m")
         else:
-            print(f"\033[1;93m[ Shouko.dev ] - No cache found for {package_name}\033[0m")
+            print(f"\033[1;93m[ TDJS ] - No cache found for {package_name}\033[0m")
 
     @staticmethod
     def launch_roblox(package_name, server_link):
@@ -780,7 +818,7 @@ class RobloxManager:
             with status_lock:
                 globals()["package_statuses"][package_name]["Status"] = f"\033[1;31m{error_message}\033[0m"
                 UIManager.update_status_table()
-            print(f"\033[1;31m[ Shouko.dev ] - {error_message}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - {error_message}\033[0m")
             Utilities.log_error(error_message)
 
     @staticmethod
@@ -793,30 +831,30 @@ class RobloxManager:
         downloaded_appstorage_path = FileManager.download_file(appstorage_url, "appStorage.json", binary=False)
 
         if not downloaded_db_path or not downloaded_appstorage_path:
-            print("\033[1;31m[ Shouko.dev ] - Failed to download necessary files. Exiting.\033[0m")
+            print("\033[1;31m[ TDJS ] - Failed to download necessary files. Exiting.\033[0m")
             Utilities.log_error("Failed to download necessary files for cookie and appStorage injection.")
             return
 
         packages = RobloxManager.get_roblox_packages()
         if not packages:
-            print("\033[1;31m[ Shouko.dev ] - No Roblox packages detected.\033[0m")
+            print("\033[1;31m[ TDJS ] - No Roblox packages detected.\033[0m")
             return
 
         for package_name in packages:
             try:
                 cookie = RobloxManager.get_cookie()
                 if not cookie:
-                    print(f"\033[1;31m[ Shouko.dev ] - Failed to retrieve a cookie for {package_name}. Skipping...\033[0m")
+                    print(f"\033[1;31m[ TDJS ] - Failed to retrieve a cookie for {package_name}. Skipping...\033[0m")
                     break
 
                 user_id = RobloxManager.verify_cookie(cookie)
                 if user_id:
-                    print(f"\033[1;32m[ Shouko.dev ] - Cookie for {package_name} is valid! User ID: {user_id}\033[0m")
+                    print(f"\033[1;32m[ TDJS ] - Cookie for {package_name} is valid! User ID: {user_id}\033[0m")
                 else:
-                    print(f"\033[1;31m[ Shouko.dev ] - Cookie for {package_name} is invalid. Skipping injection...\033[0m")
+                    print(f"\033[1;31m[ TDJS ] - Cookie for {package_name} is invalid. Skipping injection...\033[0m")
                     continue
 
-                print(f"\033[1;32m[ Shouko.dev ] - Injecting cookie for {package_name}: {cookie}\033[0m")
+                print(f"\033[1;32m[ TDJS ] - Injecting cookie for {package_name}: {cookie}\033[0m")
 
                 destination_db_dir = f"/data/data/{package_name}/app_webview/Default/"
                 destination_appstorage_dir = f"/data/data/{package_name}/files/appData/LocalStorage/"
@@ -825,24 +863,24 @@ class RobloxManager:
 
                 destination_db_path = os.path.join(destination_db_dir, "Cookies")
                 shutil.copyfile(downloaded_db_path, destination_db_path)
-                print(f"\033[1;32m[ Shouko.dev ] - Copied Cookies.db to {destination_db_path}\033[0m")
+                print(f"\033[1;32m[ TDJS ] - Copied Cookies.db to {destination_db_path}\033[0m")
 
                 destination_appstorage_path = os.path.join(destination_appstorage_dir, "appStorage.json")
                 shutil.copyfile(downloaded_appstorage_path, destination_appstorage_path)
-                print(f"\033[1;32m[ Shouko.dev ] - Copied appStorage.json to {destination_appstorage_path}\033[0m")
+                print(f"\033[1;32m[ TDJS ] - Copied appStorage.json to {destination_appstorage_path}\033[0m")
 
                 RobloxManager.replace_cookie_value_in_db(destination_db_path, cookie)
 
             except Exception as e:
                 error_message = f"Error injecting cookie for {package_name}: {e}"
-                print(f"\033[1;31m[ Shouko.dev ] - {error_message}\033[0m")
+                print(f"\033[1;31m[ TDJS ] - {error_message}\033[0m")
                 Utilities.log_error(error_message)
 
-        print("\033[1;32m[ Shouko.dev ] - Opening all Roblox tabs...\033[0m")
+        print("\033[1;32m[ TDJS ] - Opening all Roblox tabs...\033[0m")
         failed_packages = []
         for package_name in packages:
             try:
-                print(f"\033[1;36m[ Shouko.dev ] - Launching {package_name}...\033[0m")
+                print(f"\033[1;36m[ TDJS ] - Launching {package_name}...\033[0m")
                 cmd_splash = [
                     'am', 'start',
                     '-a', 'android.intent.action.MAIN',
@@ -851,34 +889,34 @@ class RobloxManager:
                 result_splash = subprocess.run(cmd_splash, capture_output=True, text=True)
                 if result_splash.returncode != 0:
                     error_message = f"Failed to open Roblox for {package_name}: {result_splash.stderr}"
-                    print(f"\033[1;31m[ Shouko.dev ] - {error_message}\033[0m")
+                    print(f"\033[1;31m[ TDJS ] - {error_message}\033[0m")
                     Utilities.log_error(error_message)
                     failed_packages.append(package_name)
                 else:
-                    print(f"\033[1;32m[ Shouko.dev ] - Successfully launched {package_name}\033[0m")
+                    print(f"\033[1;32m[ TDJS ] - Successfully launched {package_name}\033[0m")
             except Exception as e:
                 error_message = f"Error launching {package_name}: {e}"
-                print(f"\033[1;31m[ Shouko.dev ] - {error_message}\033[0m")
+                print(f"\033[1;31m[ TDJS ] - {error_message}\033[0m")
                 Utilities.log_error(error_message)
                 failed_packages.append(package_name)
 
         if failed_packages:
-            print(f"\033[1;31m[ Shouko.dev ] - Failed to launch packages: {', '.join(failed_packages)}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Failed to launch packages: {', '.join(failed_packages)}\033[0m")
         else:
-            print("\033[1;32m[ Shouko.dev ] - Successfully launched all packages.\033[0m")
+            print("\033[1;32m[ TDJS ] - Successfully launched all packages.\033[0m")
 
-        print("\033[1;33m[ Shouko.dev ] - Waiting for all tabs to load (1 minute)...\033[0m")
+        print("\033[1;33m[ TDJS ] - Waiting for all tabs to load (1 minute)...\033[0m")
         time.sleep(60)
 
-        debug_mode = input("\033[1;93m[ Shouko.dev ] - Keep Roblox tabs open for debugging? (y/n): \033[0m").strip().lower()
+        debug_mode = input("\033[1;93m[ TDJS ] - Keep Roblox tabs open for debugging? (y/n): \033[0m").strip().lower()
         if debug_mode != 'y':
-            print("\033[1;33m[ Shouko.dev ] - Closing all Roblox tabs after loading...\033[0m")
+            print("\033[1;33m[ TDJS ] - Closing all Roblox tabs after loading...\033[0m")
             RobloxManager.kill_roblox_processes()
             time.sleep(5)
         else:
-            print("\033[1;33m[ Shouko.dev ] - Keeping Roblox tabs open for debugging.\033[0m")
+            print("\033[1;33m[ TDJS ] - Keeping Roblox tabs open for debugging.\033[0m")
 
-        print("\033[1;32m[ Shouko.dev ] - Cookie and appStorage injection, followed by app launch, completed for all packages.\033[0m")
+        print("\033[1;32m[ TDJS ] - Cookie and appStorage injection, followed by app launch, completed for all packages.\033[0m")
 
     @staticmethod
     def replace_cookie_value_in_db(db_path, new_cookie_value):
@@ -901,7 +939,7 @@ class RobloxManager:
         elif input_link.isdigit():
             return f'roblox://placeID={input_link}'
         else:
-            print("\033[1;31m[ Shouko.dev ] - Invalid input! Please enter a valid game ID or private server link.\033[0m")
+            print("\033[1;31m[ TDJS ] - Invalid input! Please enter a valid game ID or private server link.\033[0m")
             return None
 
 class WebhookManager:
@@ -965,7 +1003,7 @@ class WebhookManager:
                     "footer": {"text": f"Made with 💖 by Shouko.dev | Join us at discord.gg/rokidmanager",
                             "icon_url": "https://i.imgur.com/5yXNxU4.png"},
                     "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "author": {"name": "Shouko.dev",
+                    "author": {"name": "TDJS",
                             "url": "https://discord.gg/rokidmanager",
                             "icon_url": "https://i.imgur.com/5yXNxU4.png"}
                 }
@@ -973,16 +1011,16 @@ class WebhookManager:
                 with open(screenshot_path, "rb") as file:
                     response = requests.post(
                         webhook_url,
-                        data={"payload_json": json.dumps({"embeds": [embed], "username": "Shouko.dev", "avatar_url": "https://i.imgur.com/5yXNxU4.png"})},
+                        data={"payload_json": json.dumps({"embeds": [embed], "username": "TDJS", "avatar_url": "https://i.imgur.com/5yXNxU4.png"})},
                         files={"file": ("screenshot.png", file)}
                     )
 
                 if response.status_code not in (200, 204):
-                    print(f"\033[1;31m[ Shouko.dev ] - Error sending device info: {response.status_code}\033[0m")
+                    print(f"\033[1;31m[ TDJS ] - Error sending device info: {response.status_code}\033[0m")
                     Utilities.log_error(f"Error sending webhook: Status code {response.status_code}")
 
             except Exception as e:
-                print(f"\033[1;31m[ Shouko.dev ] - Webhook error: {e}\033[0m")
+                print(f"\033[1;31m[ TDJS ] - Webhook error: {e}\033[0m")
                 Utilities.log_error(f"Error in webhook thread: {e}")
 
             time.sleep(webhook_interval * 60)
@@ -997,14 +1035,14 @@ class WebhookManager:
         global webhook_url, device_name, webhook_interval, stop_webhook_thread
         try:
             stop_webhook_thread = True
-            webhook_url = input("\033[1;35m[ Shouko.dev ] - Enter your Webhook URL: \033[0m")
-            device_name = input("\033[1;35m[ Shouko.dev ] - Enter your device name: \033[0m")
-            webhook_interval = int(input("\033[1;35m[ Shouko.dev ] - Enter the interval to send Webhook (minutes): \033[0m"))
+            webhook_url = input("\033[1;35m[ TDJS ] - Enter your Webhook URL: \033[0m")
+            device_name = input("\033[1;35m[ TDJS ] - Enter your device name: \033[0m")
+            webhook_interval = int(input("\033[1;35m[ TDJS ] - Enter the interval to send Webhook (minutes): \033[0m"))
             FileManager.save_config()
             stop_webhook_thread = False
             threading.Thread(target=WebhookManager.send_webhook).start()
         except Exception as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error during webhook setup: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error during webhook setup: {e}\033[0m")
             Utilities.log_error(f"Error during webhook setup: {e}")
 
 class UIManager:
@@ -1012,15 +1050,14 @@ class UIManager:
     def print_header(version):
         console = Console()
         header = Text(r"""
-      _                 _             _            
-     | |               | |           | |           
-  ___| |__   ___  _   _| | _____   __| | _____   __
- / __| '_ \ / _ \| | | | |/ / _ \ / _` |/ _ \ \ / /
- \__ \ | | | (_) | |_| |   < (_) | (_| |  __/\ V / 
- |___/_| |_|\___/ \__,_|_|\_\___(_)__,_|\___| \_/  
-        """, style="bold yellow")
+ _____ ____       _ ____  
+|_   _|  _ \     | / ___| 
+  | | | | | |_   | \___ \ 
+  | | | |_| | |__| |___) |
+  |_| |____/ \____/|____/ 
+        """, style="bold cyan")
 
-        config_file = os.path.join("Shouko.dev", "config.json")
+        config_file = os.path.join("TDJS", "config.json")
         check_executor = "1"
         global codex_bypass_enabled
 
@@ -1030,11 +1067,11 @@ class UIManager:
                     config = json.load(f)
                     check_executor = config.get("check_executor", "0")
             except Exception as e:
-                console.print(f"[bold red][ Shouko.dev ] - Error reading {config_file}: {e}[/bold red]")
+                console.print(f"[bold red][ TDJS ] - Error reading {config_file}: {e}[/bold red]")
 
         console.print(header)
-        console.print(f"[bold yellow]- Version: [/bold yellow][bold white]{version}[/bold white]")
-        console.print(f"[bold yellow]- Credit: [/bold yellow][bold white]Shouko.dev[/bold white]")
+        console.print(f"[bold cyan]- Version: [/bold cyan][bold white]{version}[/bold white]")
+        console.print(f"[bold cyan]- Rebranded by: [/bold cyan][bold magenta]TDJS 🔥[/bold magenta]")
 
         if check_executor == "1":
             console.print("[bold yellow]- Method: [/bold yellow][bold white]Check Executor[/bold white]")
@@ -1061,8 +1098,8 @@ class UIManager:
 
         panel = Panel(
             table,
-            title="[bold yellow]discord.gg/ghmaDgNzDa - Beta Edition[/bold yellow]",
-            border_style="yellow",
+            title="[bold cyan]TDJS - Rebranded Edition 🔥[/bold cyan]",
+            border_style="cyan",
             box=ROUNDED
         )
 
@@ -1129,7 +1166,7 @@ class ExecutorManager:
             for path in possible_autoexec_paths:
                 if os.path.exists(path):
                     detected_executors.append(executor_name)
-                    console.print(f"[bold green][ Shouko.dev ] - Detected executor: {executor_name}[/bold green]")
+                    console.print(f"[bold green][ TDJS ] - Detected executor: {executor_name}[/bold green]")
                     break
 
         return detected_executors
@@ -1137,13 +1174,13 @@ class ExecutorManager:
     @staticmethod
     def write_lua_script(detected_executors):
         console = Console()
-        config_file = os.path.join("Shouko.dev", "checkui.lua")
+        config_file = os.path.join("TDJS", "checkui.lua")
 
         try:
             with open(config_file, "r") as f:
                 lua_script_content = f.read()
         except Exception as e:
-            console.print(f"[bold red][ Shouko.dev ] - Error reading config from {config_file}: {e}[/bold red]")
+            console.print(f"[bold red][ TDJS ] - Error reading config from {config_file}: {e}[/bold red]")
             return
 
         for executor_name in detected_executors:
@@ -1176,21 +1213,21 @@ class ExecutorManager:
                     try:
                         with open(autoruns_path, "w") as f:
                             json.dump(autoruns_data, f)
-                        console.print(f"[bold green][ Shouko.dev ] - Added script into KRNL autoexec![/bold green]")
+                        console.print(f"[bold green][ TDJS ] - Added script into KRNL autoexec![/bold green]")
                     except Exception as e:
-                        console.print(f"[bold red][ Shouko.dev ] - Error updating KRNL autoexec: {e}[/bold red]")
+                        console.print(f"[bold red][ TDJS ] - Error updating KRNL autoexec: {e}[/bold red]")
                         Utilities.log_error(f"Error updating KRNL autoexec: {e}")
                 else:
-                    console.print(f"[bold green][ Shouko.dev ] - Script already exists in KRNL autoexec![/bold green]")
+                    console.print(f"[bold green][ TDJS ] - Script already exists in KRNL autoexec![/bold green]")
 
                 try:
                     os.makedirs(os.path.dirname(tabs_path), exist_ok=True)
                     with open(tabs_path, "w") as f:
                         f.write(lua_script_content)
                     lua_written = True
-                    console.print(f"[bold green][ Shouko.dev ] - Lua script written successfully![/bold green]")
+                    console.print(f"[bold green][ TDJS ] - Lua script written successfully![/bold green]")
                 except Exception as e:
-                    console.print(f"[bold red][ Shouko.dev ] - Error writing Lua script to KRNL autoexec: {e}[/bold red]")
+                    console.print(f"[bold red][ TDJS ] - Error writing Lua script to KRNL autoexec: {e}[/bold red]")
                     Utilities.log_error(f"Error writing Lua script to KRNL autoexec: {e}")
 
             if not lua_written:
@@ -1202,9 +1239,9 @@ class ExecutorManager:
                         with open(lua_script_path, 'w') as file:
                             file.write(lua_script_content)
                         lua_written = True
-                        console.print(f"[bold green][ Shouko.dev ] - Lua script written to: {lua_script_path}[/bold green]")
+                        console.print(f"[bold green][ TDJS ] - Lua script written to: {lua_script_path}[/bold green]")
                     except Exception as e:
-                        console.print(f"[bold red][ Shouko.dev ] - Error writing Lua script to {lua_script_path}: {e}[/bold red]")
+                        console.print(f"[bold red][ TDJS ] - Error writing Lua script to {lua_script_path}: {e}[/bold red]")
                         Utilities.log_error(f"Error writing Lua script to {lua_script_path}: {e}")
 
                 if not lua_written:
@@ -1216,15 +1253,15 @@ class ExecutorManager:
                                 with open(lua_script_path, 'w') as file:
                                     file.write(lua_script_content)
                                 lua_written = True
-                                console.print(f"[bold green][ Shouko.dev ] - Lua script written to: {lua_script_path}[/bold green]")
+                                console.print(f"[bold green][ TDJS ] - Lua script written to: {lua_script_path}[/bold green]")
                                 break
 
                             except Exception as e:
-                                console.print(f"[bold red][ Shouko.dev ] - Error writing Lua script to {lua_script_path}: {e}[/bold red]")
+                                console.print(f"[bold red][ TDJS ] - Error writing Lua script to {lua_script_path}: {e}[/bold red]")
                                 Utilities.log_error(f"Error writing Lua script to {lua_script_path}: {e}")
 
                     if not lua_written:
-                        console.print(f"[bold yellow][ Shouko.dev ] - No valid path found to write Lua script for {executor_name}[/bold yellow]")
+                        console.print(f"[bold yellow][ TDJS ] - No valid path found to write Lua script for {executor_name}[/bold yellow]")
 
     @staticmethod
     def check_executor_status(package_name, continuous=True, max_wait_time=180):
@@ -1272,7 +1309,7 @@ class ExecutorManager:
                         RobloxManager.kill_roblox_process(package_name)
                         RobloxManager.delete_cache_for_package(package_name)
                         time.sleep(15)
-                        print(f"\033[1;33m[ Shouko.dev ] - Rejoining {package_name}...\033[0m")
+                        print(f"\033[1;33m[ TDJS ] - Rejoining {package_name}...\033[0m")
                         globals()["package_statuses"][package_name]["Status"] = "\033[1;36mRejoining\033[0m"
                         UIManager.update_status_table()
                         RobloxManager.launch_roblox(package_name, server_link)
@@ -1289,7 +1326,7 @@ class ExecutorManager:
                     RobloxManager.kill_roblox_process(package_name)
                     RobloxManager.delete_cache_for_package(package_name)
                     time.sleep(10)
-                    print(f"\033[1;33m[ Shouko.dev ] - Rejoining {package_name} after error...\033[0m")
+                    print(f"\033[1;33m[ TDJS ] - Rejoining {package_name} after error...\033[0m")
                     globals()["package_statuses"][package_name]["Status"] = "\033[1;36mRejoining\033[0m"
                     UIManager.update_status_table()
                     RobloxManager.launch_roblox(package_name, server_link)
@@ -1446,24 +1483,24 @@ class CodexBypass:
             try:
                 result = CodexBypass.codex(hwid)
                 if not result:
-                    print("\033[1;31m[ Shouko.dev ] - Get Codex key failed. Retrying...\033[0m")
+                    print("\033[1;31m[ TDJS ] - Get Codex key failed. Retrying...\033[0m")
                     time.sleep(5)
                     continue
                     
                 expiry_timestamp = result.get("expiry", 0)
                 if not expiry_timestamp:
-                    print("\033[1;31m[ Shouko.dev ] - Invalid expiry timestamp. Retrying...\033[0m")
+                    print("\033[1;31m[ TDJS ] - Invalid expiry timestamp. Retrying...\033[0m")
                     time.sleep(5)
                     continue
 
                 while codex_bypass_enabled:
                     time_left = Utilities.calculate_time_left(expiry_timestamp)
                     if time_left <= 0:
-                        print("\033[1;33m[ Shouko.dev ] - Codex key expired. Restarting...\033[0m")
+                        print("\033[1;33m[ TDJS ] - Codex key expired. Restarting...\033[0m")
                         break
                         
                     formatted_time = Utilities.format_time_left(time_left)
-                    sys.stdout.write(f"\r\033[1;32m[ Shouko.dev ] - Codex key expiry in: {formatted_time} ")
+                    sys.stdout.write(f"\r\033[1;32m[ TDJS ] - Codex key expiry in: {formatted_time} ")
                     sys.stdout.flush()
                     time.sleep(1)
 
@@ -1471,7 +1508,7 @@ class CodexBypass:
                 sys.stdout.flush()
 
             except Exception as e:
-                print(f"\033[1;31m[ Shouko.dev ] - Error in bypass thread: {e}\033[0m")
+                print(f"\033[1;31m[ TDJS ] - Error in bypass thread: {e}\033[0m")
                 time.sleep(5)
 
 class Runner:
@@ -1483,7 +1520,7 @@ class Runner:
         for package_name, server_link in server_links:
             user_id = globals()["_user_"].get(package_name, "Unknown")
             if user_id == "Unknown":
-                print(f"\033[1;31m[ Shouko.dev ] - No UserID found for {package_name}, skipping...\033[0m")
+                print(f"\033[1;31m[ TDJS ] - No UserID found for {package_name}, skipping...\033[0m")
                 continue
             username = FileManager.get_username(user_id)
             with status_lock:
@@ -1495,7 +1532,7 @@ class Runner:
         total_packages = len(packages_to_launch)
         for index, (package_name, server_link) in enumerate(packages_to_launch):
             next_package_event.clear()
-            print(f"\033[1;32m[ Shouko.dev ] - Launching package {index + 1}/{total_packages}: {package_name}\033[0m")
+            print(f"\033[1;32m[ TDJS ] - Launching package {index + 1}/{total_packages}: {package_name}\033[0m")
             try:
                 RobloxManager.launch_roblox(package_name, server_link)
                 if globals()["check_exec_enable"] == "1":
@@ -1503,7 +1540,7 @@ class Runner:
                     if len(detected_executors) > 0:
                         ExecutorManager.write_lua_script(detected_executors)
                     else:
-                        print(f"\033[1;33m[ Shouko.dev ] - No executors detected for {package_name}\033[0m")
+                        print(f"\033[1;33m[ TDJS ] - No executors detected for {package_name}\033[0m")
             except Exception as e:
                 Utilities.log_error(f"Error launching Roblox for {package_name}: {e}\n{traceback.format_exc()}")
                 print(f"\033[1;31mError launching Roblox for {package_name}: {e}\033[0m")
@@ -1538,14 +1575,14 @@ class Runner:
                                     globals()["package_statuses"][package_name]["Status"] = "\033[1;32mIn-Game\033[0m"
                                     UIManager.update_status_table()
                                 in_game_status[package_name] = True
-                                print(f"\033[1;32m[ Shouko.dev ] - {user_id} is now In-Game, monitoring started.\033[0m")
+                                print(f"\033[1;32m[ TDJS ] - {user_id} is now In-Game, monitoring started.\033[0m")
                             continue 
                             
                         if presence_type != 2:
                             with status_lock:
                                 globals()["package_statuses"][package_name]["Status"] = "\033[1;31mNot In-Game, Rejoining!\033[0m"
                                 UIManager.update_status_table()
-                            print(f"\033[1;31m[ Shouko.dev ] - {user_id} confirmed offline, rejoining...\033[0m")
+                            print(f"\033[1;31m[ TDJS ] - {user_id} confirmed offline, rejoining...\033[0m")
                             RobloxManager.kill_roblox_process(package_name)
                             RobloxManager.delete_cache_for_package(package_name)
                             time.sleep(2)
@@ -1565,10 +1602,10 @@ class Runner:
         force_rejoin_interval = float(interval) if interval and isinstance(interval, (int, float)) else float('inf')
         while not stop_event.is_set():
             if force_rejoin_interval != float('inf') and (time.time() - start_time >= force_rejoin_interval):
-                print("\033[1;31m[ Shouko.dev ] - Force killing Roblox processes due to time limit.\033[0m")
+                print("\033[1;31m[ TDJS ] - Force killing Roblox processes due to time limit.\033[0m")
                 RobloxManager.kill_roblox_processes()
                 start_time = time.time()
-                print("\033[1;33m[ Shouko.dev ] - Waiting for 5 seconds before starting the rejoin process...\033[0m")
+                print("\033[1;33m[ TDJS ] - Waiting for 5 seconds before starting the rejoin process...\033[0m")
                 time.sleep(5)
                 Runner.launch_package_sequentially(server_links)
             time.sleep(120)
@@ -1585,17 +1622,17 @@ def check_activation_status():
         response.raise_for_status()
         content = response.text.strip()
         if content == "true":
-            print("\033[1;32m[ Shouko.dev ] - Activation status: Enabled. Proceeding with tool execution.\033[0m")
+            print("\033[1;32m[ TDJS ] - Activation status: Enabled. Proceeding with tool execution.\033[0m")
             return True
         elif content == "false":
-            print("\033[1;31m[ Shouko.dev ] - Activation status: Disabled. Tool execution halted.\033[0m")
+            print("\033[1;31m[ TDJS ] - Activation status: Disabled. Tool execution halted.\033[0m")
             return False
         else:
-            print(f"\033[1;31m[ Shouko.dev ] - Invalid activation status received: {content}. Halting execution.\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Invalid activation status received: {content}. Halting execution.\033[0m")
             Utilities.log_error(f"Invalid activation status: {content}")
             return False
     except requests.RequestException as e:
-        print(f"\033[1;31m[ Shouko.dev ] - Error checking activation status: {e}\033[0m")
+        print(f"\033[1;31m[ TDJS ] - Error checking activation status: {e}\033[0m")
         Utilities.log_error(f"Error checking activation status: {e}")
         return False
 
@@ -1617,7 +1654,7 @@ def main():
     global auto_android_id_enabled, auto_android_id_thread, auto_android_id_value
 
     if not check_activation_status():
-        print("\033[1;31m[ Shouko.dev ] - Exiting due to activation status check failure.\033[0m")
+        print("\033[1;31m[ TDJS ] - Exiting due to activation status check failure.\033[0m")
         return
     
     FileManager._load_config()
@@ -1625,24 +1662,24 @@ def main():
     if not globals().get("command_8_configured", False):
         globals()["check_exec_enable"] = "1"
         globals()["lua_script_template"] = 'loadstring(game:HttpGet("https://repo.rokidmanager.com/RokidManager/neyoshiiuem/main/checkonline.lua"))()'
-        config_file = os.path.join("Shouko.dev", "checkui.lua")
+        config_file = os.path.join("TDJS", "checkui.lua")
         try:
-            os.makedirs("Shouko.dev", exist_ok=True)
+            os.makedirs("TDJS", exist_ok=True)
             with open(config_file, "w") as f:
                 f.write(globals()["lua_script_template"])
-            print("\033[1;32m[ Shouko.dev ] - Default script saved to checkui.lua\033[0m")
+            print("\033[1;32m[ TDJS ] - Default script saved to checkui.lua\033[0m")
         except Exception as e:
-            print(f"\033[1;31m[ Shouko.dev ] - Error saving default script to {config_file}: {e}\033[0m")
+            print(f"\033[1;31m[ TDJS ] - Error saving default script to {config_file}: {e}\033[0m")
             Utilities.log_error(f"Error saving default script to {config_file}: {e}")
         FileManager.save_config()
 
     if webhook_interval is None:
-        print("\033[1;31m[ Shouko.dev ] - Webhook interval not set, disabled.\033[0m")
+        print("\033[1;31m[ TDJS ] - Webhook interval not set, disabled.\033[0m")
         webhook_interval = float('inf')
     if webhook_url and device_name and webhook_interval != float('inf'):
         WebhookManager.start_webhook_thread()
     else:
-        print("\033[1;33m[ Shouko.dev ] - Webhook not configured or disabled.\033[0m")
+        print("\033[1;33m[ TDJS ] - Webhook not configured or disabled.\033[0m")
 
     stop_main_event = threading.Event()
 
@@ -1663,7 +1700,7 @@ def main():
         ]
 
         UIManager.create_dynamic_menu(menu_options)
-        setup_type = input("\033[1;93m[ Shouko.dev ] - Enter command: \033[0m")
+        setup_type = input("\033[1;93m[ TDJS ] - Enter command: \033[0m")
         codex_bypass_active = False
 
         if setup_type == "1":
@@ -1673,25 +1710,25 @@ def main():
                 globals()["_uid_"] = {}
 
                 if not globals()["accounts"]:
-                    print("\033[1;31m[ Shouko.dev ] - No user IDs set up.\033[0m")
+                    print("\033[1;31m[ TDJS ] - No user IDs set up.\033[0m")
                     input("\033[1;32mPress Enter to return...\033[0m")
                     continue
                 if not server_links:
-                    print("\033[1;31m[ Shouko.dev ] - No game ID or server link set up.\033[0m")
+                    print("\033[1;31m[ TDJS ] - No game ID or server link set up.\033[0m")
                     input("\033[1;32mPress Enter to return...\033[0m")
                     continue
 
-                force_rejoin_input = input("\033[1;93m[ Shouko.dev ] - Force rejoin interval (minutes, 'q' to skip): \033[0m")
+                force_rejoin_input = input("\033[1;93m[ TDJS ] - Force rejoin interval (minutes, 'q' to skip): \033[0m")
                 force_rejoin_interval = float('inf') if force_rejoin_input.lower() == 'q' else int(force_rejoin_input) * 60
                 if force_rejoin_interval <= 0:
-                    print("\033[1;31m[ Shouko.dev ] - Interval must be positive.\033[0m")
+                    print("\033[1;31m[ TDJS ] - Interval must be positive.\033[0m")
                     input("\033[1;32mPress Enter to return...\033[0m")
                     continue
 
                 codex_bypass_active = True
 
                 if codex_bypass_active and codex_bypass_enabled:
-                    print("\033[1;32m[ Shouko.dev ] - Codex bypass enabled.\033[0m")
+                    print("\033[1;32m[ TDJS ] - Codex bypass enabled.\033[0m")
 
                 RobloxManager.kill_roblox_processes()
                 time.sleep(5)
@@ -1712,14 +1749,14 @@ def main():
                     Utilities.collect_garbage()
 
             except Exception as e:
-                print(f"\033[1;31m[ Shouko.dev ] - Error: {e}\033[0m")
+                print(f"\033[1;31m[ TDJS ] - Error: {e}\033[0m")
                 Utilities.log_error(f"Setup error: {e}")
                 input("\033[1;32mPress Enter to return...\033[0m")
                 continue
 
         elif setup_type == "2":
             try:
-                print("\033[1;32m[ Shouko.dev ] - Auto Setup User IDs from appStorage.json...\033[0m")
+                print("\033[1;32m[ TDJS ] - Auto Setup User IDs from appStorage.json...\033[0m")
                 packages = RobloxManager.get_roblox_packages()
                 accounts = []
 
@@ -1729,22 +1766,22 @@ def main():
                         user_id = FileManager.find_userid_from_file(file_path)
                         if user_id and user_id != "-1":
                             accounts.append((package_name, user_id))
-                            print(f"\033[96m[ Shouko.dev ] - Found UserId for {package_name}: {user_id}\033[0m")
+                            print(f"\033[96m[ TDJS ] - Found UserId for {package_name}: {user_id}\033[0m")
                         else:
-                            print(f"\033[1;31m[ Shouko.dev ] - UserId not found for {package_name}.\033[0m")
+                            print(f"\033[1;31m[ TDJS ] - UserId not found for {package_name}.\033[0m")
                     except Exception as e:
-                        print(f"\033[1;31m[ Shouko.dev ] - Error reading file for {package_name}: {e}\033[0m")
+                        print(f"\033[1;31m[ TDJS ] - Error reading file for {package_name}: {e}\033[0m")
                         Utilities.log_error(f"Error reading appStorage.json for {package_name}: {e}")
 
                 if accounts:
                     FileManager.save_accounts(accounts)
-                    print("\033[1;32m[ Shouko.dev ] - User IDs saved!\033[0m")
+                    print("\033[1;32m[ TDJS ] - User IDs saved!\033[0m")
                 else:
-                    print("\033[1;31m[ Shouko.dev ] - No User IDs found.\033[0m")
+                    print("\033[1;31m[ TDJS ] - No User IDs found.\033[0m")
                     input("\033[1;32mPress Enter to return...\033[0m")
                     continue
 
-                print("\033[93m[ Shouko.dev ] - Select game:\033[0m")
+                print("\033[93m[ TDJS ] - Select game:\033[0m")
                 games = [
                     "1. Blox Fruits", "2. Anime Defenders", "3. King Legacy", "4. Fisch",
                     "5. Bee Swarm Simulator", "6. Anime Vanguards", "7. Pet GO",
@@ -1755,7 +1792,7 @@ def main():
                 for game in games:
                     print(f"\033[96m{game}\033[0m")
 
-                choice = input("\033[93m[ Shouko.dev ] - Enter choice: \033[0m").strip()
+                choice = input("\033[93m[ TDJS ] - Enter choice: \033[0m").strip()
                 game_ids = {
                     "1": "2753915549", "2": "17017769292", "3": "4520749081", "4": "16732694052",
                     "5": "1537690962", "6": "16146832113", "7": "18901165922", "8": "8737899170",
@@ -1766,9 +1803,9 @@ def main():
                 if choice in game_ids:
                     server_link = game_ids[choice]
                 elif choice == "17":
-                    server_link = input("\033[93m[ Shouko.dev ] - Enter game ID or private server link: \033[0m")
+                    server_link = input("\033[93m[ TDJS ] - Enter game ID or private server link: \033[0m")
                 else:
-                    print("\033[1;31m[ Shouko.dev ] - Invalid choice.\033[0m")
+                    print("\033[1;31m[ TDJS ] - Invalid choice.\033[0m")
                     input("\033[1;32mPress Enter to return...\033[0m")
                     continue
 
@@ -1776,11 +1813,11 @@ def main():
                 if formatted_link:
                     server_links = [(package_name, formatted_link) for package_name, _ in accounts]
                     FileManager.save_server_links(server_links)
-                    print("\033[1;32m[ Shouko.dev ] - Game ID or server link saved!\033[0m")
+                    print("\033[1;32m[ TDJS ] - Game ID or server link saved!\033[0m")
                 else:
-                    print("\033[1;31m[ Shouko.dev ] - Invalid server link.\033[0m")
+                    print("\033[1;31m[ TDJS ] - Invalid server link.\033[0m")
             except Exception as e:
-                print(f"\033[1;31m[ Shouko.dev ] - Error: {e}\033[0m")
+                print(f"\033[1;31m[ TDJS ] - Error: {e}\033[0m")
                 Utilities.log_error(f"Setup error: {e}")
                 input("\033[1;32mPress Enter to return...\033[0m")
                 continue
@@ -1800,50 +1837,50 @@ def main():
         elif setup_type == "5":
             try:
                 print("\033[1;35m[1]\033[1;32m Executor Check\033[0m \033[1;35m[2]\033[1;36m Online Check\033[0m")
-                config_choice = input("\033[1;93m[ Shouko.dev ] - Select check method (1-2, 'q' to keep default): \033[0m").strip()
+                config_choice = input("\033[1;93m[ TDJS ] - Select check method (1-2, 'q' to keep default): \033[0m").strip()
 
                 if config_choice.lower() == "q":
                     globals()["check_exec_enable"] = "1"
                     globals()["lua_script_template"] = 'loadstring(game:HttpGet("https://repo.rokidmanager.com/RokidManager/neyoshiiuem/main/checkonline.lua"))()'
-                    print("\033[1;32m[ Shouko.dev ] - Default set: Executor + Shouko Check\033[0m")
+                    print("\033[1;32m[ TDJS ] - Default set: Executor + Shouko Check\033[0m")
                 elif config_choice == "1":
                     globals()["check_exec_enable"] = "1"
                     globals()["lua_script_template"] = 'loadstring(game:HttpGet("https://repo.rokidmanager.com/RokidManager/neyoshiiuem/main/checkonline.lua"))()'
-                    print("\033[1;32m[ Shouko.dev ] - Set to Executor + Shouko Check\033[0m")
+                    print("\033[1;32m[ TDJS ] - Set to Executor + Shouko Check\033[0m")
                 elif config_choice == "2":
                     globals()["check_exec_enable"] = "0"
                     globals()["lua_script_template"] = None
-                    print("\033[1;36m[ Shouko.dev ] - Set to Online Check.\033[0m")
+                    print("\033[1;36m[ TDJS ] - Set to Online Check.\033[0m")
                 else:
-                    print("\033[1;31m[ Shouko.dev ] - Invalid choice. Keeping default.\033[0m")
+                    print("\033[1;31m[ TDJS ] - Invalid choice. Keeping default.\033[0m")
                     globals()["check_exec_enable"] = "1"
                     globals()["lua_script_template"] = 'loadstring(game:HttpGet("https://repo.rokidmanager.com/RokidManager/neyoshiiuem/main/checkonline.lua"))()'
 
-                config_file = os.path.join("Shouko.dev", "checkui.lua")
+                config_file = os.path.join("TDJS", "checkui.lua")
                 if globals()["lua_script_template"]:
                     try:
-                        os.makedirs("Shouko.dev", exist_ok=True)
+                        os.makedirs("TDJS", exist_ok=True)
                         with open(config_file, "w") as f:
                             f.write(globals()["lua_script_template"])
-                        print(f"\033[1;36m[ Shouko.dev ] - Script saved to {config_file}\033[0m")
+                        print(f"\033[1;36m[ TDJS ] - Script saved to {config_file}\033[0m")
                     except Exception as e:
-                        print(f"\033[1;31m[ Shouko.dev ] - Error saving script: {e}\033[0m")
+                        print(f"\033[1;31m[ TDJS ] - Error saving script: {e}\033[0m")
                         Utilities.log_error(f"Error saving script to {config_file}: {e}")
                 else:
                     if os.path.exists(config_file):
                         try:
                             os.remove(config_file)
-                            print(f"\033[1;36m[ Shouko.dev ] - Removed {config_file} for Online Check.\033[0m")
+                            print(f"\033[1;36m[ TDJS ] - Removed {config_file} for Online Check.\033[0m")
                         except Exception as e:
-                            print(f"\033[1;31m[ Shouko.dev ] - Error removing {config_file}: {e}\033[0m")
+                            print(f"\033[1;31m[ TDJS ] - Error removing {config_file}: {e}\033[0m")
                             Utilities.log_error(f"Error removing {config_file}: {e}")
 
                 globals()["command_8_configured"] = True
 
                 FileManager.save_config()
-                print("\033[1;32m[ Shouko.dev ] - Check method configuration saved.\033[0m")
+                print("\033[1;32m[ TDJS ] - Check method configuration saved.\033[0m")
             except Exception as e:
-                print(f"\033[1;31m[ Shouko.dev ] - Error setting up check method: {e}\033[0m")
+                print(f"\033[1;31m[ TDJS ] - Error setting up check method: {e}\033[0m")
                 Utilities.log_error(f"Check method setup error: {e}")
                 input("\033[1;32mPress Enter to return...\033[0m")
                 continue
@@ -1853,15 +1890,15 @@ def main():
         elif setup_type == "6":
             if codex_bypass_enabled:
                 codex_bypass_enabled = False
-                print("\033[1;31m[ Shouko.dev ] - Codex bypass disabled.\033[0m")
+                print("\033[1;31m[ TDJS ] - Codex bypass disabled.\033[0m")
             else:
                 codex_bypass_enabled = True
                 if codex_bypass_thread is None or not codex_bypass_thread.is_alive():
                     codex_bypass_thread = threading.Thread(target=CodexBypass.bypass_thread, daemon=True)
                     codex_bypass_thread.start()
-                    print("\033[1;32m[ Shouko.dev ] - Codex bypass enabled and thread started.\033[0m")
+                    print("\033[1;32m[ TDJS ] - Codex bypass enabled and thread started.\033[0m")
                 else:
-                    print("\033[1;32m[ Shouko.dev ] - Codex bypass already running.\033[0m")
+                    print("\033[1;32m[ TDJS ] - Codex bypass already running.\033[0m")
             FileManager.save_config()
             input("\033[1;32m\nPress Enter to return to menu...\033[0m")
             continue
@@ -1869,17 +1906,17 @@ def main():
         elif setup_type == "7":
             try:
                 current_prefix = globals().get("package_prefix", "com.roblox")
-                print(f"\033[1;32m[ Shouko.dev ] - Current package prefix: {current_prefix}\033[0m")
-                new_prefix = input("\033[1;93m[ Shouko.dev ] - Enter new package prefix (or press Enter to keep current): \033[0m").strip()
+                print(f"\033[1;32m[ TDJS ] - Current package prefix: {current_prefix}\033[0m")
+                new_prefix = input("\033[1;93m[ TDJS ] - Enter new package prefix (or press Enter to keep current): \033[0m").strip()
                 
                 if new_prefix:
                     globals()["package_prefix"] = new_prefix
                     FileManager.save_config()
-                    print(f"\033[1;32m[ Shouko.dev ] - Package prefix updated to: {new_prefix}\033[0m")
+                    print(f"\033[1;32m[ TDJS ] - Package prefix updated to: {new_prefix}\033[0m")
                 else:
-                    print(f"\033[1;33m[ Shouko.dev ] - Package prefix unchanged: {current_prefix}\033[0m")
+                    print(f"\033[1;33m[ TDJS ] - Package prefix unchanged: {current_prefix}\033[0m")
             except Exception as e:
-                print(f"\033[1;31m[ Shouko.dev ] - Error setting package prefix: {e}\033[0m")
+                print(f"\033[1;31m[ TDJS ] - Error setting package prefix: {e}\033[0m")
                 Utilities.log_error(f"Error setting package prefix: {e}")
                 input("\033[1;32mPress Enter to return...\033[0m")
                 continue
@@ -1889,9 +1926,9 @@ def main():
         elif setup_type == "8":
             global auto_android_id_enabled, auto_android_id_thread, auto_android_id_value
             if not auto_android_id_enabled:
-                android_id = input("\033[1;93m[ Shouko.dev ] - Enter Android ID to spam set: \033[0m").strip()
+                android_id = input("\033[1;93m[ TDJS ] - Enter Android ID to spam set: \033[0m").strip()
                 if not android_id:
-                    print("\033[1;31m[ Shouko.dev ] - Android ID cannot be empty.\033[0m")
+                    print("\033[1;31m[ TDJS ] - Android ID cannot be empty.\033[0m")
                     input("\033[1;32mPress Enter to return...\033[0m")
                     continue
                 auto_android_id_value = android_id
@@ -1899,10 +1936,10 @@ def main():
                 if auto_android_id_thread is None or not auto_android_id_thread.is_alive():
                     auto_android_id_thread = threading.Thread(target=auto_change_android_id, daemon=True)
                     auto_android_id_thread.start()
-                print("\033[1;32m[ Shouko.dev ] - Auto change Android ID enabled.\033[0m")
+                print("\033[1;32m[ TDJS ] - Auto change Android ID enabled.\033[0m")
             else:
                 auto_android_id_enabled = False
-                print("\033[1;31m[ Shouko.dev ] - Auto change Android ID disabled.\033[0m")
+                print("\033[1;31m[ TDJS ] - Auto change Android ID disabled.\033[0m")
             input("\033[1;32mPress Enter to return...\033[0m")
             continue
 
@@ -1910,6 +1947,6 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        print(f"\033[1;31m[ Shouko.dev ] - Error during initialization: {e}\033[0m")
+        print(f"\033[1;31m[ TDJS ] - Error during initialization: {e}\033[0m")
         Utilities.log_error(f"Initialization error: {e}")
         raise
